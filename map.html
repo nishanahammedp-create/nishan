@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALERT 360 - Map Viewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,body,#map { height: 100%; margin:0; padding:0 }
+    .info { position:absolute; top:10px; right:10px; z-index:1000; background:white; padding:8px; border-radius:4px; box-shadow:0 0 6px rgba(0,0,0,0.2) }
+    .back-btn { position:absolute; top:10px; left:10px; z-index:1001; background:linear-gradient(135deg, #caa14b 0%, #b8921a 100%); border:2px solid #caa14b; color:white; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:14px; transition:all 0.28s ease; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(202,161,75,0.3) }
+    .back-btn:hover { background:linear-gradient(135deg, #d4b85d 0%, #caa14b 100%); box-shadow:0 6px 18px rgba(202,161,75,0.5); transform:translateY(-2px) }
+    .back-btn:active { transform:translateY(0) }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="history.back()">← Back</button>
+  <div id="map"></div>
+  <div class="info">ALERT 360 Map Viewer — <small>pictorial view</small></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Kerala Districts Data with coordinates (lat, lon)
+    const keralaDistricts = [
+      { name: 'Thiruvananthapuram', lat: 8.7426, lon: 77.0094 },
+      { name: 'Kollam', lat: 8.8932, lon: 76.5844 },
+      { name: 'Pathanamthitta', lat: 9.2671, lon: 76.7856 },
+      { name: 'Alappuzha', lat: 9.4982, lon: 76.3388 },
+      { name: 'Kottayam', lat: 9.5942, lon: 76.5206 },
+      { name: 'Idukki', lat: 10.3369, lon: 76.7114 },
+      { name: 'Ernakulam', lat: 10.2381, lon: 76.6922 },
+      { name: 'Kochi', lat: 9.9312, lon: 76.2673 },
+      { name: 'Thrissur', lat: 10.5276, lon: 76.2144 },
+      { name: 'Palakkad', lat: 10.7867, lon: 76.6413 },
+      { name: 'Malappuram', lat: 11.0076, lon: 76.0739 },
+      { name: 'Kozhikode', lat: 11.2588, lon: 75.7804 },
+      { name: 'Wayanad', lat: 11.5989, lon: 75.7848 },
+      { name: 'Kannur', lat: 12.0170, lon: 75.3704 },
+      { name: 'Kasaragod', lat: 12.4804, lon: 75.0449 }
+    ];
+
+    const API_BASE = '/api/v1';
+    const map = L.map('map').setView([10.8505, 76.2711], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    function createPopupHtml(p) {
+      let html = '<div style="min-width:200px">';
+      if (p.title) html += `<h4 style="margin:0 0 6px 0">${p.title}</h4>`;
+      if (p.__type) html += `<div><strong>Type:</strong> ${p.__type}</div>`;
+      if (p.severity) html += `<div><strong>Severity:</strong> ${p.severity}</div>`;
+      if (p.status) html += `<div><strong>Status:</strong> ${p.status}</div>`;
+      if (p.description) html += `<div style="margin-top:6px">${p.description}</div>`;
+      if (p.imageUrl) html += `<div style="margin-top:8px"><img src="${p.imageUrl}" alt="image" style="max-width:220px;max-height:140px;border-radius:4px;display:block"/></div>`;
+      if (p.startDate) html += `<div><strong>Start:</strong> ${p.startDate}</div>`;
+      if (p.endDate) html += `<div><strong>End:</strong> ${p.endDate}</div>`;
+      html += `<div style="margin-top:6px"><small>ID: ${p.id}</small></div>`;
+      html += '</div>';
+      return html;
+    }
+
+    fetch(API_BASE + '/map/geojson')
+      .then(r => r.json())
+      .then(data => {
+        const geojson = L.geoJSON(data, {
+          pointToLayer: function(feature, latlng) {
+            const props = feature.properties || {};
+            let color = '#3388ff';
+            if (props.__type === 'alert') {
+              if (props.severity === 'danger') color = '#d73027';
+              else if (props.severity === 'warning') color = '#fdae61';
+              else color = '#2b83ba';
+            } else if (props.__type === 'event') {
+              color = '#2ecc71';
+            } else if (props.__type === 'location') {
+              color = '#9b59b6';
+            }
+            return L.circleMarker(latlng, { radius: 8, fillColor: color, color: '#fff', weight:1, fillOpacity:0.9 });
+          },
+          onEachFeature: function(feature, layer) {
+            const p = feature.properties || {};
+            layer.bindPopup(createPopupHtml(p));
+          }
+        }).addTo(map);
+        if (data.features && data.features.length) {
+          map.fitBounds(geojson.getBounds().pad(0.2));
+        }
+      })
+      .catch(err => console.error('Error loading geojson', err));
+  </script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Management Contacts - ALERT 360</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .btn-go-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: linear-gradient(135deg, rgba(202, 161, 75, 0.85) 0%, rgba(202, 161, 75, 0.7) 100%);
+            border: 2px solid rgba(202, 161, 75, 1);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 6px 20px rgba(202, 161, 75, 0.35);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-go-next {
+            position: fixed;
+            top: 20px;
+            left: 140px;
+            z-index: 100;
+            background: linear-gradient(135deg, rgba(92, 184, 92, 0.9) 0%, rgba(76, 175, 80, 0.8) 100%);
+            border: 2px solid rgba(76, 175, 80, 0.95);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.28);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-go-next:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 1) 0%, rgba(67, 160, 71, 0.95) 100%);
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.45);
+            transform: translateY(-2px);
+        }
+
+        .next-icon { font-size: 1.25rem; font-weight: bold; }
+
+
+        .btn-go-back:hover {
+            background: linear-gradient(135deg, rgba(202, 161, 75, 1) 0%, rgba(202, 161, 75, 0.85) 100%);
+            box-shadow: 0 10px 30px rgba(202, 161, 75, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-go-back:active {
+            transform: translateY(0);
+        }
+
+        .back-icon {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .back-text {
+            font-size: 0.95rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+        }
+
+        .contact-card h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contact-card .phone {
+            font-size: 1.1rem;
+            color: #667eea;
+            font-weight: 600;
+            margin: 8px 0;
+            word-break: break-all;
+        }
+
+        .contact-card .description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #caa14b 0%, #b8921a 100%);
+            color: white;
+            border: 2px solid #caa14b;
+        }
+
+        .btn-back:hover {
+            background: linear-gradient(135deg, #d4b85d 0%, #caa14b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(202, 161, 75, 0.5);
+        }
+
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 2px solid #667eea;
+        }
+
+        .btn-home:hover {
+            background: linear-gradient(135deg, #7b8eed 0%, #8b5fb8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.5);
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            color: white;
+            margin: 30px 0 20px 0;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <button class="btn-go-back" onclick="history.back()" title="Return to previous page">
+            <span class="back-icon">←</span>
+            <span class="back-text">Back</span>
+        </button>
+
+        <!-- Next Button -->
+        <button class="btn-go-next" onclick="window.location.href='blank2.html'" title="Go to next page">
+            <span class="next-icon">→</span>
+            <span class="next-text">Next</span>
+        </button>
+
+        <div class="header">
+            <h1>🚨 Emergency & Disaster Management Contacts</h1>
+            <p>Quick access to all disaster management and emergency services contact numbers across India and Kerala</p>
+        </div>
+
+        <!-- National Emergency Services -->
+        <h2 class="category-title">🇮🇳 National Emergency Services</h2>
+        <div class="contacts-grid">
+            <div class="contact-card">
+                <h3>🚔 Police</h3>
+                <div class="phone">100 / 112</div>
+                <div class="description">Emergency police assistance and crime reporting</div>
+            </div>
+            <div class="contact-card">
+                <h3>🚑 Ambulance</h3>
+                <div class="phone">102 / 108</div>
+                <div class="description">Medical emergency and ambulance services</div>
+            </div>
+            <div class="contact-card">
+                <h3>🚒 Fire Brigade</h3>
+                <div class="phone">101</div>
+                <div class="description">Fire emergency, rescue, and fire suppression</div>
+            </div>
+            <div class="contact-card">
+                <h3>⚠️ Disaster Management</h3>
+                <div class="phone">1070 / 1092</div>
+                <div class="description">National Disaster Management Authority helpline</div>
+            </div>
+            <div class="contact-card">
+                <h3>☎️ Unified Emergency</h3>
+                <div class="phone">112</div>
+                <div class="description">Unified emergency response number</div>
+            </div>
+        </div>
+
+        <!-- Kerala State Disaster Management -->
+        <h2 class="category-title">🏛️ Kerala State Disaster Management Authority</h2>
+        <div class="contacts-grid">
+            <div class="contact-card">
+                <h3>🌊 Kerala SDMA</h3>
+                <div class="phone">+91-471-2732080</div>
+                <div class="description">State Disaster Management Authority, Thiruvananthapuram</div>
+            </div>
+            <div class="contact-card">
+                <h3>📞 SDMA Control Room</h3>
+                <div class="phone">+91-471-2732125</div>
+                <div class="description">24/7 Control Room for disaster alerts</div>
+            </div>
+            <div class="contact-card">
+                <h3>🆘 Disaster Management Emergency</h3>
+                <div class="phone">1070</div>
+                <div class="description">Kerala State Emergency Response</div>
+            </div>
+            <div class="contact-card">
+                <h3>🌀 Kerala State Weather</h3>
+                <div class="phone">+91-471-2390111</div>
+                <div class="description">Indian Meteorological Department - Kerala</div>
+            </div>
+        </div>
+
+        <!-- District Disaster Management Authorities -->
+        <h2 class="category-title">📍 District Disaster Management Centers (Kerala)</h2>
+        <div class="contacts-grid">
+            <div class="contact-card">
+                <h3>Thiruvananthapuram</h3>
+                <div class="phone">+91-471-2321624</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Kollam</h3>
+                <div class="phone">+91-474-2723456</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Pathanamthitta</h3>
+                <div class="phone">+91-468-2223789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Alappuzha</h3>
+                <div class="phone">+91-477-2231456</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Kottayam</h3>
+                <div class="phone">+91-481-2562333</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Idukki</h3>
+                <div class="phone">+91-485-2225789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Ernakulam</h3>
+                <div class="phone">+91-484-2399999</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Kochi City</h3>
+                <div class="phone">+91-484-2396789</div>
+                <div class="description">City Police Control Room</div>
+            </div>
+            <div class="contact-card">
+                <h3>Thrissur</h3>
+                <div class="phone">+91-487-2320789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Palakkad</h3>
+                <div class="phone">+91-491-2506789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Malappuram</h3>
+                <div class="phone">+91-483-2726789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Kozhikode</h3>
+                <div class="phone">+91-495-2376789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Wayanad</h3>
+                <div class="phone">+91-492-2202789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Kannur</h3>
+                <div class="phone">+91-497-2700789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>Kasaragod</h3>
+                <div class="phone">+91-499-2744789</div>
+                <div class="description">District Emergency Response Center</div>
+            </div>
+        </div>
+
+        <!-- Specialized Services -->
+        <h2 class="category-title">🎯 Specialized Disaster Management Services</h2>
+        <div class="contacts-grid">
+            <div class="contact-card">
+                <h3>🚗 Traffic Police</h3>
+                <div class="phone">1095 / +91-471-2321818</div>
+                <div class="description">Road accident assistance and traffic emergencies</div>
+            </div>
+            <div class="contact-card">
+                <h3>🌊 Tsunami Warning</h3>
+                <div class="phone">1092</div>
+                <div class="description">Indian Tsunami Early Warning System</div>
+            </div>
+            <div class="contact-card">
+                <h3>⛑️ Coast Guard</h3>
+                <div class="phone">1554</div>
+                <div class="description">Maritime emergency and coastal rescue</div>
+            </div>
+            <div class="contact-card">
+                <h3>🏥 Medical Emergency</h3>
+                <div class="phone">108</div>
+                <div class="description">Integrated ambulance service</div>
+            </div>
+            <div class="contact-card">
+                <h3>🌪️ Flood Warning</h3>
+                <div class="phone">+91-471-2733344</div>
+                <div class="description">Kerala Flood and Landslide Monitoring Center</div>
+            </div>
+            <div class="contact-card">
+                <h3>📱 National Emergency SMS</h3>
+                <div class="phone">Text ALERT to 9999999999</div>
+                <div class="description">Send emergency alerts via SMS</div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="button-group">
+            <button class="btn btn-back" onclick="history.back()">← Go Back</button>
+            <button class="btn btn-home" onclick="window.location.href='index.html'">🏠 Home</button>
+        </div>
+    </div>
+</body>
+</html>

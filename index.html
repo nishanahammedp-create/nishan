@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Alert - Stay Safe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Full-screen Hero / Landing -->
+    <div id="hero" class="hero">
+        <div class="hero-overlay"></div>
+        
+        <div class="hero-content">
+            <h1 class="hero-title">ALERT 360</h1>
+            <p class="hero-subtitle">Real-time disaster alerts • Stay informed • Stay safe</p>
+            <div class="hero-ctas">
+                <a href="#" class="btn-primary hero-btn" id="enterBtn">CLICK TO ENTER</a>
+                <a href="map.html" class="btn-small hero-btn" id="viewMapBtn">OPEN MAP</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content modal-large admin-dashboard">
+            <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
+            <h2>🛡️ Admin Dashboard</h2>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" onclick="switchAdminTab('stats')">📊 Statistics</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('alerts')">🚨 Manage Alerts</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('users')">👥 Users</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('settings')">⚙️ System Settings</button>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div id="adminStatsTab" class="admin-tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚨</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Active Alerts</p>
+                            <p class="stat-value" id="adminActiveAlerts">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Total Users</p>
+                            <p class="stat-value" id="adminTotalUsers">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Monitored Locations</p>
+                            <p class="stat-value" id="adminLocations">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📡</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Data Sources</p>
+                            <p class="stat-value">6</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h3>System Status</h3>
+                    <div class="status-list">
+                        <div class="status-item">
+                            <span class="status-label">Server Status</span>
+                            <span class="status-badge online">● Online</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Database Connection</span>
+                            <span class="status-badge online">● Connected</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Alert Delivery Rate</span>
+                            <span class="status-badge online">● 99.8%</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Last System Check</span>
+                            <span class="status-time" id="lastCheck">Just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Alerts Tab -->
+            <div id="adminAlertsTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <h3>Active Alerts Management</h3>
+                    <div class="alert-management">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <button class="btn-primary" onclick="createNewAlert()">+ Create Alert</button>
+                            <button class="btn-small" onclick="refreshAlertsList()">Refresh List</button>
+                        </div>
+                        <div class="alerts-list" id="adminAlertsList">
+                            <p style="color: var(--text-secondary); text-align: center;">Loading alerts...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="adminUsersTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <h3>User Management</h3>
+                    <div class="users-management">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <input type="text" id="userSearchInput" placeholder="Search users..." class="input-field">
+                            <button class="btn-primary" onclick="searchUsers()">Search</button>
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-secondary);">No users data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Settings Tab -->
+            <div id="adminSettingsTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <h3>System Configuration</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label>Alert Timeout (seconds)</label>
+                            <input type="number" id="alertTimeout" value="300" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Alerts Per User</label>
+                            <input type="number" id="maxAlerts" value="50" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>Default Search Radius (km)</label>
+                            <input type="number" id="defaultRadius" value="50" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="autoDispatchToggle" checked>
+                                <span class="toggle-switch"></span>
+                                Enable Auto Alert Dispatch
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="offlineCommToggle" checked>
+                                <span class="toggle-switch"></span>
+                                Enable Offline Communication
+                            </label>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button class="btn-primary" onclick="saveSystemSettings()">Save Settings</button>
+                            <button class="btn-small" onclick="resetSystemSettings()">Reset to Default</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-actions-left">
+                <button class="btn-back" id="backBtn" onclick="goToHero()" title="Back to landing page">←</button>
+                <button class="btn-about" id="aboutBtn">ℹ️</button>
+            </div>
+            <div class="header-content">
+                <div class="logo">
+                    <h1>ALERT 360</h1>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="search-container">
+                    <input type="text" id="searchLocation" class="search-input" placeholder="Search location...">
+                    <button class="search-btn" onclick="searchLocation()">🔍</button>
+                </div>
+                <button class="btn-map" id="mapViewBtn" onclick="toggleSecondPage()" title="View Kerala Weather Map">🗺️</button>
+                <button class="btn-settings" id="settingsBtn">⚙️</button>
+                <button class="btn-refresh" id="refreshBtn">🔄</button>
+            </div>
+        </header>
+
+        <!-- Suggestions Dropdown (placed outside header for visibility) -->
+        <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
+
+        <!-- Location Bar -->
+        <div class="location-bar">
+            <div class="location-info">
+                <span class="location-icon">🌍</span>
+                <div class="location-details">
+                    <p class="location-label">Your Location</p>
+                    <p class="location-name" id="locationName">Loading...</p>
+                </div>
+            </div>
+            <div>
+                <div class="alert-level" id="alertLevel">
+                    <span class="alert-icon">🔴</span>
+                    <span class="alert-text">Safe</span>
+                </div>
+                <button class="btn-emergency" id="quickEmergencyBtn" title="Send quick alert">QUICK ALERT</button>
+                <button class="btn-auto-alert" id="autoAlertToggle" title="Auto Alert (toggle)">AUTO ALERT</button>
+                <button class="btn-admin-bar" id="adminBtnBar" onclick="openAdminDashboard(event)" title="Open Admin Dashboard">Admin</button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-bar">
+            <button class="stat stat-btn" id="alertsStatBtn" title="Send Emergency Alert to nearby disaster offices">
+                <span class="stat-number" id="activeAlerts">0</span>
+                <span class="stat-label">Emergency Alert</span>
+            </button>
+            <button class="stat stat-btn" id="eventsStatBtn">
+                <span class="stat-number" id="nearbyCount">0</span>
+                <span class="stat-label">Nearby Events</span>
+            </button>
+            <button class="stat stat-btn" id="contactsStatBtn">
+                <span class="stat-number">📞</span>
+                <span class="stat-label">Emergency</span>
+            </button>
+            <button class="stat stat-btn" id="warningsStatBtn">
+                <span class="stat-number" id="warningCount">0</span>
+                <span class="stat-label">Warnings</span>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Alerts Section -->
+            <section class="section collapsed" id="alertsSection" data-section="alerts">
+                <div class="section-header" onclick="toggleSection('alerts')">
+                    <h2 class="section-title">🚨 Active Alerts</h2>
+                    <button class="expand-btn">▼</button>
+                </div>
+                <div class="section-content hidden">
+                    <div class="alert-filters" id="alertFilters">
+                        <button class="filter-chip active" onclick="setAlertSourceFilter('all')" data-filter="all">All</button>
+                        <button class="filter-chip" onclick="setAlertSourceFilter('official')" data-filter="official">Official</button>
+                        <button class="filter-chip" onclick="setAlertSourceFilter('sensor')" data-filter="sensor">Sensors</button>
+                        <button class="filter-chip" onclick="setAlertSourceFilter('satellite')" data-filter="satellite">Satellite</button>
+                        <button class="filter-chip" onclick="setAlertSourceFilter('ai')" data-filter="ai">AI</button>
+                    </div>
+                    <button class="btn-small" id="clearAlertsBtn">Clear All</button>
+                    <div class="alerts-container" id="alertsContainer">
+                        <div class="empty-state">
+                            <p>No active alerts in your area</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nearby Events Section -->
+            <section class="section collapsed" id="eventsSection" data-section="events">
+                <div class="section-header" onclick="toggleSection('events')">
+                    <h2 class="section-title">📢 Nearby Events</h2>
+                    <button class="expand-btn">▼</button>
+                </div>
+                <div class="section-content hidden">
+                    <div class="events-container" id="eventsContainer">
+                        <div class="empty-state">
+                            <p>No nearby events</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upcoming Disaster Forecast Section -->
+            <section class="section collapsed" id="disasterSection" data-section="disaster">
+                <div class="section-header" onclick="toggleSection('disaster')">
+                    <h2 class="section-title">🚨 Upcoming Disaster Forecast</h2>
+                    <button class="expand-btn">▼</button>
+                </div>
+                <div class="section-content hidden">
+                    <div class="disaster-controls" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <label style="font-size:0.9rem; color:var(--text-secondary);">Data Sources:</label>
+                            <label class="toggle-inline"><input type="checkbox" id="dsSensorToggle"> Sensors</label>
+                            <label class="toggle-inline"><input type="checkbox" id="dsSatelliteToggle"> Satellite</label>
+                            <label class="toggle-inline"><input type="checkbox" id="dsAiToggle"> AI Prediction</label>
+                        </div>
+                        <div style="margin-left:auto; display:flex; gap:0.5rem;">
+                            <button class="btn-primary" id="runForecastBtn">Run Prediction</button>
+                            <button class="btn-small" id="clearForecastBtn">Clear</button>
+                        </div>
+                    </div>
+                    <div class="disaster-container" id="disasterContainer">
+                        <div class="empty-state">
+                            <p>No predictions yet. Toggle data sources and click "Run Prediction" to analyze upcoming disaster risk in your area.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Emergency Contacts Section -->
+            <section class="section collapsed" id="contactsSection" data-section="contacts">
+                <div class="section-header" onclick="toggleSection('contacts')">
+                    <h2 class="section-title">📞 Emergency Contacts</h2>
+                    <button class="expand-btn">▼</button>
+                </div>
+                <div class="section-content hidden">
+                    <div class="contacts-grid" id="contactsGrid">
+                        <!-- Emergency contacts will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Warnings Section -->
+            <section class="section collapsed" id="warningsSection" data-section="warnings">
+                <div class="section-header" onclick="toggleSection('warnings')">
+                    <h2 class="section-title">⚠️ Safety Tips</h2>
+                    <button class="expand-btn">▼</button>
+                </div>
+                <div class="section-content hidden">
+                    <div class="tips-container" id="tipsContainer">
+                        <!-- Safety tips will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Offline Communication Section -->
+            <section class="section collapsed" id="offlineSection" data-section="offline">
+                <div class="section-header" onclick="toggleSection('offline')">
+                    <h2 class="section-title">📡 Offline Communication</h2>
+                    <button class="expand-btn">▼</button>
+                </div>
+                <div class="section-content hidden">
+                    <div class="offline-container">
+                        <p class="offline-description">Connect to nearby users via local WiFi or Bluetooth to communicate with disaster management when network is unavailable.</p>
+                        
+                        <div class="offline-controls">
+                            <button class="btn-primary" id="startOfflineBtn" onclick="startOfflineBroadcast()">📡 Start Broadcasting</button>
+                            <button class="btn-small" id="stopOfflineBtn" onclick="stopOfflineBroadcast()" style="display:none;">Stop Broadcasting</button>
+                        </div>
+
+                        <div class="nearby-peers" id="nearbyPeers">
+                            <h4>Nearby Users</h4>
+                            <div id="peersList" class="peers-list">
+                                <p style="color: var(--text-secondary); text-align: center;">No nearby users detected</p>
+                            </div>
+                        </div>
+
+                        <div class="offline-chat">
+                            <h4>Offline Messages</h4>
+                            <div id="messagesList" class="messages-list"></div>
+                            <div class="message-input-area">
+                                <input type="text" id="offlineMessage" class="input-field" placeholder="Type emergency message...">
+                                <button class="btn-primary" onclick="sendOfflineMessage()">Send</button>
+                            </div>
+                        </div>
+
+                        <div class="offline-status">
+                            <p id="offlineStatus" style="font-size: 0.9rem; color: var(--text-secondary);">Status: Offline communication inactive</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <!-- Bottom navigation items removed as requested -->
+        </nav>
+    </div>
+
+    <!-- Second Page: Kerala Map Background -->
+    <div class="second-page" id="secondPage">
+        <div class="map-background">
+            <img src="./img33/kerala map  picture only kerala map showing weather condition as background make it perfect.jpg" alt="Kerala Map Weather Conditions" class="kerala-map-bg">
+            
+            <!-- District Panel (Left Sidebar) -->
+            <div class="district-panel" id="districtPanel">
+                <div class="district-header" onclick="toggleDistrictPanel()">
+                    <span>🌦️ Kerala Weather</span>
+                    <button class="district-toggle" id="districtToggle">▼</button>
+                </div>
+                <div class="district-search">
+                    <input type="text" id="districtSearch" placeholder="Search..." onkeyup="filterDistricts()">
+                </div>
+                <div class="district-list" id="districtList"></div>
+            </div>
+            
+            <div class="map-overlay">
+                <div class="map-content">
+                    <!-- Admin button moved to main app location bar -->
+                </div>
+            </div>
+            <!-- Go Back Button -->
+            <button class="btn-go-back" onclick="toggleSecondPage()" title="Return to main interface">
+                <span class="back-icon">←</span>
+                <span class="back-text">Back</span>
+            </button>
+            <!-- Go Next Button -->
+            <button class="btn-go-next" onclick="goToBlankPage()" title="Go to Next Page">
+                <span class="next-icon">→</span>
+                <span class="next-text">Next</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Emergency SOS -->
+    <div class="modal" id="sosModal">
+        <div class="modal-content modal-large">
+            <button class="modal-close" onclick="closeModal('sosModal')">&times;</button>
+            <h2>🆘 Emergency SOS</h2>
+            <p class="modal-description">Quick access to emergency services</p>
+            <div class="sos-grid">
+                <button class="sos-btn emergency" onclick="triggerEmergency('police')">
+                    <span class="sos-icon">🚔</span>
+                    <span class="sos-text">Call Police</span>
+                    <span class="sos-number">100 / 911</span>
+                </button>
+                <button class="sos-btn emergency" onclick="triggerEmergency('ambulance')">
+                    <span class="sos-icon">🚑</span>
+                    <span class="sos-text">Call Ambulance</span>
+                    <span class="sos-number">102 / 911</span>
+                </button>
+                <button class="sos-btn emergency" onclick="triggerEmergency('fire')">
+                    <span class="sos-icon">🚒</span>
+                    <span class="sos-text">Call Fire Brigade</span>
+                    <span class="sos-number">101 / 911</span>
+                </button>
+                <button class="sos-btn emergency" onclick="triggerEmergency('disaster')">
+                    <span class="sos-icon">⚠️</span>
+                    <span class="sos-text">Disaster Management</span>
+                    <span class="sos-number">108 / 911</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: About -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('aboutModal')">&times;</button>
+            <h2>ℹ️ About ALERT 360</h2>
+            <div class="about-content">
+                <h3>Overview</h3>
+                <p>ALERT 360 is a comprehensive disaster alert and emergency management application designed to keep you safe and informed during critical situations.</p>
+                
+                <h3>Key Features</h3>
+                <ul class="feature-list">
+                    <li>🚨 Real-time Active Alerts for various disaster types</li>
+                    <li>📢 Nearby Events and Emergency Notifications</li>
+                    <li>📞 Quick Access to Emergency Contacts</li>
+                    <li>💡 Safety Tips and Disaster Prevention Guidelines</li>
+                    <li>🆘 Emergency SOS with one-tap alert system</li>
+                    <li>📍 Location-based alert customization</li>
+                    <li>🔔 Customizable notification preferences</li>
+                </ul>
+                
+                <h3>Supported Alert Types</h3>
+                <p>Weather Alerts • Earthquake Alerts • Flood Warnings • Traffic/Accident Alerts</p>
+                
+                <h3>Emergency Services</h3>
+                <p><strong>Police:</strong> 100/911 | <strong>Ambulance:</strong> 102/911 | <strong>Fire Brigade:</strong> 101/911 | <strong>Disaster Management:</strong> 108/911</p>
+                
+                <h3>Developer Information</h3>
+                <p><strong>Application Name:</strong> ALERT 360</p>
+                <p><strong>Version:</strong> 1.0.0</p>
+                <p><strong>Type:</strong> Emergency Alert & Safety Application</p>
+                <p><strong>Technology:</strong> HTML5 • CSS3 • Vanilla JavaScript</p>
+                <p><strong>Platform:</strong> Web-based (Mobile & Desktop Compatible)</p>
+                
+                <h3>Developed By</h3>
+                <p style="font-size:1.05rem; font-weight:700; color:#fff; text-align:center; margin:12px 0 8px;">WHEN SECONDS MATTER — ALERT SAVES LIFE</p>
+                <p style="color:var(--text-secondary); text-align:center; margin:0 0 12px;">Built with compassion, precision and a promise to stand with communities when they need it most. Every feature is crafted to save time, reduce harm and reconnect families.</p>
+                <p style="margin-top: 1rem; text-align:center; font-weight:800; letter-spacing:1px;">Developed by BHAGDHAAR CSE</p>
+                <p style="margin-top: 2rem; color: var(--text-secondary); font-size: 0.85rem; text-align:center;">© 2025 ALERT 360 | Stay Safe, Stay Informed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Settings -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('settingsModal')">&times;</button>
+            <h2>⚙️ Settings</h2>
+            
+            <div class="settings-group">
+                <h3>Notification Preferences</h3>
+                <label class="toggle-label">
+                    <input type="checkbox" id="notifToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Enable Notifications
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="soundToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Sound Alert
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="vibrationToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Vibration Alert
+                </label>
+            </div>
+
+            <div class="settings-group">
+                <h3>Alert Types</h3>
+                <label class="toggle-label">
+                    <input type="checkbox" id="weatherToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Weather Alerts
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="earthquakeToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Earthquake Alerts
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="floodToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Flood Warnings
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="accidentToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Traffic/Accident Alerts
+                </label>
+            </div>
+
+            <div class="settings-group">
+                <h3>Location</h3>
+                <input type="text" id="customLocation" placeholder="Enter your city" class="input-field">
+                <button class="btn-primary" onclick="updateLocation()">Update Location</button>
+            </div>
+
+            <div class="settings-group">
+                <h3>Advanced Data Sources</h3>
+                <label class="toggle-label">
+                    <input type="checkbox" id="sensorToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Enable Sensor Alerts (IoT / Local Sensors)
+                </label>
+                <p class="modal-description" style="margin-top:0.5rem; margin-bottom:1rem; font-size:0.9rem; color:var(--text-secondary);">Allow the app to use crowd-sourced/local IoT sensors and community reports to provide early warnings.</p>
+
+                <label class="toggle-label">
+                    <input type="checkbox" id="satelliteToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Use Satellite Data (NASA / Remote Sensing)
+                </label>
+                <p class="modal-description" style="margin-top:0.5rem; margin-bottom:1rem; font-size:0.9rem; color:var(--text-secondary);">Enable remote-sensing feeds (satellite) to improve situation awareness for floods, fires and storms.</p>
+
+                <label class="toggle-label">
+                    <input type="checkbox" id="aiToggle" checked>
+                    <span class="toggle-switch"></span>
+                    Enable AI Predictions
+                </label>
+                <p class="modal-description" style="margin-top:0.5rem; font-size:0.9rem; color:var(--text-secondary);">Use AI-based forecasting models to surface potential upcoming hazards. This may produce probabilistic alerts.</p>
+            </div>
+
+            <div class="settings-group">
+                <h3>Weather API (OpenWeatherMap)</h3>
+                <p class="modal-description" style="margin-top:0; margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-secondary);">To fetch real weather and forecast data globally, paste your OpenWeatherMap API key below. Get a free key at <a href="https://openweathermap.org/" target="_blank">openweathermap.org</a>.</p>
+                <input type="text" id="owmApiKeyInput" placeholder="OpenWeatherMap API Key" class="input-field">
+                <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+                    <button class="btn-primary" onclick="saveApiKey()">Save API Key</button>
+                    <button class="btn-small" onclick="fetchWeatherForLocation(appState.userLocation)">Fetch Now</button>
+                </div>
+            </div>
+
+            <button class="btn-danger" onclick="clearAllData()">Clear All Data</button>
+        </div>
+    </div>
+
+    <!-- Modal: Alert Details -->
+    <div class="modal" id="alertDetailModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('alertDetailModal')">&times;</button>
+            <div id="alertDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Detail Overview -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content modal-detail">
+            <button class="modal-close" onclick="closeModal('detailModal')">&times;</button>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+    <script>
+        // Hero dismissal with app entrance animation
+        document.addEventListener('DOMContentLoaded', function () {
+            const enter = document.getElementById('enterBtn');
+            const hero = document.getElementById('hero');
+            const app = document.querySelector('.app-container');
+            if (app) {
+                // keep app hidden until hero dismissed to create a smooth entrance
+                app.classList.remove('visible');
+                app.style.visibility = 'hidden';
+            }
+
+            if (enter && hero) {
+                enter.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    // standard fade out for hero and reveal app
+                    hero.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
+                    hero.style.opacity = '0';
+                    hero.style.transform = 'translateY(-6px)';
+                    setTimeout(() => {
+                        hero.remove();
+                        if (app) {
+                            app.style.visibility = '';
+                            app.classList.add('visible');
+                        }
+                    }, 480);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
